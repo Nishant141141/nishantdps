@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Keyframes for a subtle message container animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Body styles */
+body {
+    margin: 0;
+    padding: 0;
+    background: #181b21 url(https://www.toptal.com/designers/subtlepatterns/patterns/nami.png);
+    font-family: 'Quicksand', sans-serif;
+    letter-spacing: -0.23px;
+    color: #f0f0f0; /* Adjusted text color for better readability */
+}
+
+/* Common styles for message container */
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+    animation: fadeIn 0.5s ease; /* Apply the animation */
+}
+
+/* Common styles for message input container */
+#sendMsg {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+    background-color: #fff;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+}
+
+/* Message text input */
+#msgTxt {
+    flex: 1;
+    height: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 40px;
+    margin-right: 10px;
+    background-color: #dedfed;
+    box-shadow: inset 0 0 0 2px #dedfed;
+    font-size: 14px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+    box-sizing: border-box;
+    color: #333;
+}
+
+/* Send button */
+#msgBtn {
+    width: 100px;
+    height: 100%;
+    background: #4870df;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Clear Chat Button */
+#clearChatBtn {
+    padding: 8px 15px;
+    margin-left: 10px;
+    background-color: #ff6347;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#clearChatBtn:hover {
+    background-color: #d9534f;
+}
+
+/* Styling for individual message containers */
+.outer {
+    max-width: 70%;
+    align-self: flex-start;
+    animation: fadeIn 0.5s ease; /* Apply the animation */
+}
+
+/* Inner message box */
+#inner {
+    padding: 15px;
+    border-radius: 10px;
+    background: #4870df;
+    color: #fff;
+}
+
+/* Differentiate sender and receiver messages */
+.me #inner {
+    background: #4870df;
+    align-self: flex-end;
+}
+
+.notMe #inner {
+    background: #fafafa;
+    color: #333;
+}
+    </style>
+</head>
+
+<body>
+    
+
+        <div id="messages"></div>
+
+    <div id="sendMsg">
+        <input type="text" id="msgTxt" placeholder="ENTER YOUR MSG...">
+        <input type="submit" id="msgBtn" value="send" onclick="module.sendMsg()">
+    </div>
+
+      <script>
+        module = {};
+    </script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJ81pHD2-xnKczsJyrWwIZao-rypkeDOo",
+            authDomain: "coder-8ddcf.firebaseapp.com",
+            projectId: "coder-8ddcf",
+            storageBucket: "coder-8ddcf.appspot.com",
+            messagingSenderId: "603139974872",
+            appId: "1:603139974872:web:98026f933d6f421116d9ad"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // variables
+        var msgTxt = document.getElementById('msgTxt');
+        var sender;
+        if(sessionStorage.getItem('sender')){
+            sender = sessionStorage.getItem('sender');
+        } else {
+            sender = prompt('PLEASE ENTER YOUR NAME');
+            sessionStorage.setItem('sender',sender);
+        }
+
+        // TO SEND MESSAGES
+        module.sendMsg = function sendMsg(){
+            var msg = msgTxt.value;
+            var timestamp = new Date().getTime();
+            set(ref(db,"messages/"+timestamp),{
+                msg : msg,
+                sender : sender
+            })
+
+            msgTxt.value="";
+        }
+
+        // TO RECEIVE MSG
+        onChildAdded(ref(db,"messages"), (data)=>{
+            if(data.val().sender == sender){
+                messages.innerHTML += "<div style=justify-content:end class=outer id="+data.key+"><div id=inner class=me>you : "+data.val().msg+"";
+            } else {
+                messages.innerHTML += "<div class=outer id="+data.key+"><div id=inner class=notMe>"+data.val().sender+" : "+data.val().msg+"</div></div>";
+            }
+        })
+
+       
+       
+       
+       
+       
+          </script>
+</body>
+
+</html>
